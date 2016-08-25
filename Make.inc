@@ -598,27 +598,6 @@ $(error Pre-SSE2 CPU targets not supported. To create a generic 32-bit x86 binar
 pass 'MARCH=pentium4'.)
 endif
 
-ifneq ($(MARCH),)
-CC += -march=$(MARCH)
-CXX += -march=$(MARCH)
-FC += -march=$(MARCH)
-JULIA_CPU_TARGET ?= $(MARCH)
-ifeq ($(OS),Darwin)
-# on Darwin, the standalone `as` program doesn't know
-# how to handle AVX instructions, but it does know how
-# to dispatch to the clang assembler (if we ask it to)
-ifeq ($(USECLANG),1)
-CC += -integrated-as
-CXX += -integrated-as
-else
-CC += -Wa,-q
-CXX += -Wa,-q
-endif
-FC += -Wa,-q
-AS += -q
-endif
-endif
-
 JULIA_CPU_TARGET ?= native
 
 # We map amd64 to x86_64 for compatibility with systems that identify 64-bit systems as such
@@ -668,7 +647,28 @@ override USE_BLAS64:=0
 override OPENBLAS_DYNAMIC_ARCH:=0
 override OPENBLAS_TARGET_ARCH:=ARMV7
 override USE_SYSTEM_LIBM:=1
+endif
 
+# Set MARCH-specific flags
+ifneq ($(MARCH),)
+CC += -march=$(MARCH)
+CXX += -march=$(MARCH)
+FC += -march=$(MARCH)
+JULIA_CPU_TARGET ?= $(MARCH)
+ifeq ($(OS),Darwin)
+# on Darwin, the standalone `as` program doesn't know
+# how to handle AVX instructions, but it does know how
+# to dispatch to the clang assembler (if we ask it to)
+ifeq ($(USECLANG),1)
+CC += -integrated-as
+CXX += -integrated-as
+else
+CC += -Wa,-q
+CXX += -Wa,-q
+endif
+FC += -Wa,-q
+AS += -q
+endif
 endif
 
 # Set some ARCH-specific flags
