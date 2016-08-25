@@ -650,12 +650,13 @@ ISX86:=0
 endif
 
 # If we are running on powerpc64 or ppc64, set certain options automatically
-ifneq (,$(filter $(ARCH), powerpc64 ppc64le))
+ifneq (,$(filter $(ARCH), powerpc64 powerpc64le ppc64 ppc64le))
 JCFLAGS += -fsigned-char
 override LLVM_VER:=3.8.1
 override OPENBLAS_DYNAMIC_ARCH:=0
 override OPENBLAS_TARGET_ARCH:=POWER8
-
+# GCC doesn't do -march= on ppc64le
+override MARCH=
 endif
 
 # If we are running on ARM, set certain options automatically
